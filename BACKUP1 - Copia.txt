@@ -1,0 +1,185 @@
+from tkinter import *
+import pyqrcode
+from tkinter import messagebox
+import requests
+import json
+from tkinter import ttk
+import sqlite3
+
+# preparação
+window = Tk()
+window.geometry('1920x1080')
+window.title('Enviar Requisições')
+window.config(background='#006494')
+
+
+def deletar():
+    import delete
+
+
+def puxar():
+    import puxar
+
+
+def gerarQRcode():
+    if str(digite0.get()) == '':
+        messagebox.showerror('Erro', 'Campo vazio')
+    if str(digite1.get()) == '':
+        messagebox.showerror('Erro', 'Campo vazio')
+    if str(digite.get()) == '':
+        messagebox.showerror('Erro', 'Campo vazio')
+    if str(digite4.get()) == '':
+        messagebox.showerror('Erro', 'Campo vazio')
+
+    try:
+        info1 = {'Quantidades': str(digite.get())}  # quantidade
+        info2 = {'Peso KG': str(digite1.get())}  # peso
+        info3 = {'Nome': str(digite0.get())}
+        info4 = {'Lote': str(digite4.get())}
+    except ValueError:
+        messagebox.showerror('Erro''Por favor ultilizar ponto')
+
+    post0 = requests.post('https://requisi-10a9f-default-rtdb.firebaseio.com/NOME.json',
+                          data=json.dumps(info3))
+    NAME = requests.post('https://requisi-10a9f-default-rtdb.firebaseio.com/LOTE.json'
+                         , data=json.dumps(info4))
+
+    post = requests.post('https://requisi-10a9f-default-rtdb.firebaseio.com/QUANTIDADE.json', data=json.dumps(info1))
+
+    post1 = requests.post('https://requisi-10a9f-default-rtdb.firebaseio.com/PESO.json',
+                          data=json.dumps(info2))
+
+    buscar_dic = post0.json()
+
+    texto = buscar_dic
+    resultado['text'] = texto
+
+    if len(str(digite.get()) + str(digite1.get()) + str(digite0.get()) + str(digite4.get())) != 0:
+        global qr, img2
+        qr = pyqrcode.create('Quantidade:' + str(digite.get()) + 'Peso:' + str(digite1.get()) + 'Nome:' +
+                             str(digite0.get()) + 'Lote:' + str(digite4.get()))
+        img2 = BitmapImage(data=qr.xbm(scale=5))
+    else:
+        messagebox.showwarning('warning', 'All Fields are Required!')
+    try:
+        display_code()
+
+    except:
+        pass
+
+
+def display_code():
+    imagem2.config(image=img2)
+    textresult.config(text="QR code of System")
+
+
+# Layout
+img = PhotoImage(file='logo2 py.png')
+imagem = Label(window, bg='#006494', image=img)
+imagem.grid(column=0, row=0)
+
+font1 = ('Laksaman', 25, 'bold')
+font2 = ('Nimbus Sans [URW ]', 15, 'italic')
+font3 = ('Comic Sans MS Regular', 10)
+
+text0 = Label(window, font=font1, bg='#006494', fg='white',text='Requisiçoes')
+text0.grid(column=2, row=0)
+
+textinf = Label(window, font='Laksaman 10', bg='#006494', fg='white',text='Banco de dados:Google Firebase')
+textinf.place(relx=0, rely=0.1)
+
+text1 = Label(window, font=font2, bg='#006494',fg='white', text='Digite o nome: ')
+text1.grid(column=0, row=1)
+
+digite0 = Entry(window)
+digite0.grid(column=1, row=1)
+
+text2 = Label(window, font=font2, bg='#006494', fg='white',text='Digite a quantidade: ')
+text2.grid(column=2, row=2)
+
+digite = Entry(window)
+digite.grid(column=3, row=2)
+
+text3 = Label(window, font=font2, bg='#006494', fg='white',text='Digite o valor do peso: ', )
+text3.grid(column=0, row=2)
+
+digite1 = Entry(window)
+digite1.grid(column=1, row=2)
+
+text4 = Label(window, font=font2, bg='#006494',fg='white', text='Digite o Lote do produto: ')
+text4.grid(column=2, row=1, padx=10, pady=10)
+
+digite4 = Entry(window)
+digite4.grid(column=3, row=1)
+
+botao0 = Button(window, font=font3, text='Excluir requisição',bd=4, command=deletar)
+botao0.grid(column=0, row=10)
+
+botao = Button(window, font=font3, text='OK', bd=4, command=gerarQRcode)
+botao.grid(column=3, row=8)
+
+botao = Button(window, font=font3, text='Verificar Requisições',bd=4,
+command=puxar)
+botao.grid(column=0, row=16)
+
+frame = Label(window, bd = 4, bg='#2d2b2b',highlightbackground='#0064de', highlightthickness = 6)
+frame.place(relx=0.06, rely= 0.5, relheight=0.4, relwidth= 0.7)
+
+frame2 = ttk.Treeview(window, height=3, column=('col1'))
+frame2.heading('#0', text='Ultimas requisiçoes')
+
+
+frame2.column('#0', width=3)
+frame2.place(relx=0.07, rely=0.52, relheight=0.36, relwidth=0.68)
+
+scroll = Scrollbar(frame2)
+scroll.pack(side = RIGHT, fill = Y)
+
+textresult = Label(window, font=font3, bg='#006494', text='')
+textresult.grid(column=1, row=10)
+
+resultado = Label(window, font=font3, bg='#006494', text='')
+resultado.grid(column=1, row=20)
+
+
+window.mainloop()
+
+________________________________________
+
+CREATE TABLE IF NOT EXISTS requests(
+            Nome CHAR(10) NOT NULL,
+            Lote INTERGER(10) NOT NULL,
+            Peso INTERGER (10) NOT NULL,
+            Quantidade INTERGER (3) NOT NULL,
+            
+        );
+        
+_____________________________________________
+
+def login():
+    firebaseConfig = {
+        'apiKey': "AIzaSyBBd_i76i-ye5Gt5QarriXU_j19srm7XB0",
+        'authDomain': "requisi-10a9f.firebaseapp.com",
+        'databaseURL': "https://requisi-10a9f-default-rtdb.firebaseio.com",
+        'projectId': "requisi-10a9f",
+        'storageBucket': "requisi-10a9f.appspot.com",
+        'messagingSenderId': "983093558143",
+        'appId': "1:983093558143:web:01ffd3faa9e22ec808784a",
+        'measurementId': "G-KDQ1GE06D2"
+
+    }
+
+    firebase = pyrebase.initialize_app(firebaseConfig)
+
+    auth = firebase.auth()
+
+    email = str(digite0.get())
+    senha = str(digite1.get())
+
+    # user = auth.create_user_with_email_and_password(email, senha)
+
+    auth.sign_in_with_email_and_password(email, senha)
+
+    cred = credentials.Certificate("requisi-10a9f-firebase-adminsdk-rjcrc-5b11ea00db.json")
+    default_app = firebase_admin.initialize_app(cred)
+
